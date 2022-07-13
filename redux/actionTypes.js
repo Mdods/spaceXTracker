@@ -1,0 +1,2 @@
+export const FILTER_BY_YEAR = 'FILTER_BY_YEAR'
+export const FILTER_BY_DATE = 'FILTER_BY_DATE'
