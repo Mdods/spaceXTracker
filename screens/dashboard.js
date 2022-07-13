@@ -3,7 +3,7 @@ import { View, FlatList, Text, SafeAreaView, StyleSheet, StatusBar } from 'react
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
 import { FilterByDate, FilterByYear } from '../redux/actionCreators';
-import { fetchLaunchData } from '../services/apiFetch'
+import { fetchLaunchData, fetchFilteredByYearLaunchData } from '../services/apiFetch'
 
 export default function Dashboard() {
   const dispatch = useDispatch();
@@ -23,13 +23,13 @@ export default function Dashboard() {
   }, []);
 
   function timeConverter(UNIX_timestamp){
-  var a = new Date(UNIX_timestamp * 1000);
-  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  var year = a.getFullYear();
-  var month = months[a.getMonth()];
-  var date = a.getDate();
-  var time = date + ' ' + month + ' ' + year + ' '
-  return time;
+    const a = new Date(UNIX_timestamp * 1000);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const year = a.getFullYear();
+    const month = months[a.getMonth()];
+    const date = a.getDate();
+    const time = date + ' ' + month + ' ' + year + ' '
+    return time;
 }
   const handleSortByYear = (year) => {
     if (year) {
@@ -43,6 +43,14 @@ export default function Dashboard() {
   const handleSortByDate = () => {
     dispatch(FilterByDate())
   }
+
+  const handleSortAsceding = (array) => {
+    return array.sort((a, b) => parseFloat(a.flight_number) - parseFloat(b.flight_number))
+  };
+
+  const handleSortDescending = (array) => {
+    return array.sort((a, b) => parseFloat(b.flight_number) - parseFloat(a.flight_number))
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -105,10 +113,4 @@ export default function Dashboard() {
      flexDirection: 'row',
      justifyContent: 'space-around',
    },
-  item: {
-    backgroundColor: '#f9c2ff',
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-  },
 });
