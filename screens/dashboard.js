@@ -1,19 +1,22 @@
 import React, { useState, useEffect } from 'react'
 import { View, FlatList, Text, SafeAreaView, StyleSheet, StatusBar } from 'react-native'
-import { Card, Title, Paragraph, Button } from 'react-native-paper';
+import { Card, Title, Paragraph, Button, ActivityIndicator } from 'react-native-paper';
 import {useDispatch, useSelector} from 'react-redux';
 import { FilterByDate, FilterByYear } from '../redux/actionCreators';
-import { fetchLaunchData, fetchFilteredByYearLaunchData } from '../services/apiFetch'
+import { fetchLaunchData } from '../services/apiFetch'
 
 export default function Dashboard() {
   const dispatch = useDispatch();
-  const filteredByYearState = useSelector(state => state) 
+  const filteredByYearState = useSelector(state => state)
+  const [loaded, setLoaded] = useState(false)
+  const [sortState, SetSortState] = useState(false)
   const [launchList, setLaunchList] = useState([]);
 
   const data = async () => {
     const allData = await fetchLaunchData();
     if (allData) {
       setLaunchList(allData);
+      setLoaded(true);
     }
     return allData;
   };
@@ -44,22 +47,29 @@ export default function Dashboard() {
     dispatch(FilterByDate())
   }
 
-  const handleSortAsceding = (array) => {
+  const handleSortAscending = (array) => {
+    SetSortState(false)
     return array.sort((a, b) => parseFloat(a.flight_number) - parseFloat(b.flight_number))
   };
 
   const handleSortDescending = (array) => {
+    SetSortState(true)
     return array.sort((a, b) => parseFloat(b.flight_number) - parseFloat(a.flight_number))
   };
 
-  return (
+  return !loaded ? (
+    <ActivityIndicator animating={true} />
+  ) : (
     <SafeAreaView style={styles.container}>
       <View style={styles.TitleContainer}>
         <Text style={styles.Title}>SpaceX Launches</Text>
       </View>
       <View style={styles.buttonContainer}>
         <Button mode="contained" icon="arrow-down-circle" color='blue' onPress={() => handleSortByYear}>Filter by Year</Button>
-        <Button mode="contained" icon="arrow-down-circle" color='blue' onPress={() => handleSortByDate}>Sort Descending</Button>
+          {!sortState ? <Button mode="contained" icon="arrow-down-circle" color='blue' onPress={() => handleSortDescending(launchList)}>Sort Descending</Button>
+            : 
+          <Button mode="contained" icon="arrow-up-circle" color='blue' onPress={() => handleSortAscending(launchList)}>Sort Ascending</Button>
+            }
         {/* <Button mode="contained" color='blue' onPress={() => console.log('Pressed')}>Refresh</Button> */}
         </View>
       <FlatList
